@@ -1,32 +1,8 @@
-APPLICATION := getopt
+PROJECT = getopt
 
-REBAR=$(shell which rebar || echo ./rebar)
-ERL := erl
-EPATH := -pa ebin
+ERLC_OPTS = +debug_info +warn_export_all +warn_export_vars +warn_shadow_vars +warn_obsolete_guard
 
-DIALYZER=dialyzer
-DIALYZER_OPTS=-Wno_return -Wrace_conditions -Wunderspecs -Wno_undefined_callbacks --fullpath
+PLT_APPS = hipe sasl mnesia crypto compiler syntax_tools
+DIALYZER_OPTS = -Werror_handling -Wrace_conditions -Wunmatched_returns | fgrep -v -f ./dialyzer.ignore-warning
 
-.PHONY: all clean compile console dialyze doc test
-
-all: compile
-
-clean:
-	@$(REBAR) clean
-
-compile:
-	@$(REBAR) compile
-
-console:
-	$(ERL) -sname $(APPLICATION) $(EPATH)
-
-dialyze: compile
-	@$(DIALYZER) $(DIALYZER_OPTS) -r ./
-
-doc:
-	@$(REBAR) doc
-
-test:
-	@erl -make
-	@$(ERL) -sname $(APPLICATION) $(EPATH) -noinput -s getopt_test test -s init stop
-
+include erlang.mk
